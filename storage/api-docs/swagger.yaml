@@ -1,0 +1,122 @@
+openapi: 3.0.0
+paths:
+  /api/employees:
+    get:
+      tags:
+        - Employees
+      summary: 'Get all employees'
+      description: 'Display a listing of the resource.'
+      operationId: getEmployeesList
+      responses:
+        '200':
+          description: 'A list of employees'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Employee'
+        '400':
+          description: 'Bad request'
+    post:
+      tags:
+        - Employees
+      summary: 'Create a new employee'
+      description: 'Store a newly created resource in storage.'
+      operationId: bfad4edec29b0edbd684a0afbd847510
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone_number:
+                  type: string
+              type: object
+      responses:
+        '201':
+          description: 'Employee created successfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+  '/api/employees/{id}':
+    get:
+      tags:
+        - Employees
+      summary: 'Get a specific employee'
+      description: 'Display the specified resource.'
+      operationId: d53e117f7e819b6f063fc96ea910eb75
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Details of a specific employee'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+    put:
+      tags:
+        - Employees
+      summary: 'Update an employee'
+      description: 'Update the specified resource in storage.'
+      operationId: aab9bddc0c5cab0acc27a9d58b9cb2b0
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone_number:
+                  type: string
+              type: object
+      responses:
+        '200':
+          description: 'Employee updated successfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+    delete:
+      tags:
+        - Employees
+      summary: 'Delete an employee'
+      description: 'Remove the specified resource from storage.'
+      operationId: 4743ab328b7641983d97c047c641038f
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: 'Employee deleted successfully'
