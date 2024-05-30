@@ -9,12 +9,22 @@ use App\Http\Controllers\API\SwaggerController;
 Route::middleware(['api', 'Accept : Application/jsonaccept.json'])->group(function () {
     // User routes
 
-    Route::get('/users', [UserController::class, 'indexSwagger']);
-    Route::post('/users', [UserController::class, 'storeSwagger']);
-    Route::get('/users/{id}', [UserController::class, 'showSwagger']);
+    Route::get('/users', [UserController::class, 'index']);
+    Route::post('/users', [UserController::class, 'store']);
+    Route::get('/users/{id}', [UserController::class, 'show']);
+    
 
     // Employee routes
     Route::apiResource('employees', EmployeeController::class);
+
+    Route::get('/', function () {
+        return view('welcome');
+    });
+    Route::group(['prefix' => 'api/'], function () {
+
+        Route::get('dashboard', 'EmployeeController@index');
+
+    });
 
     // Swagger/OpenAPI documentation routes
     Route::get('docs/api-docs.json', [SwaggerController::class, 'generateSwagger']);

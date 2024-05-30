@@ -38,15 +38,17 @@ class EmployeeController extends Controller
             )
         ]
     )]
-    public function index()
+    public function index(Request $request)
     {
         $employees = Employee::all();
-        return redirect()->route('employees.index');
+
+        if ($request->expectsJson()) {
+            return response()->json($employees);
+        }
+
+        return view('welcome', compact('employees'));
     }
-    public function indexSwagger(){
-     $employees = Employee::all();
-        return response()->json($employees);
-    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -85,18 +87,6 @@ class EmployeeController extends Controller
         $employee = Employee::create($validated);
         return redirect()->route('employees.index')->with('success', 'Employee created successfully.');
     }
-
-    public function storeSwagger(){
-        $validated = $request->validate([
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'email' => 'required|email|unique:employees',
-            'phone_number' => 'required'
-        ]);
-        $employee = Employee::create($validated);
-        return response()->json($employee, 201);
-    }
-
     /**
      * Display the specified resource.
      */
@@ -120,11 +110,11 @@ class EmployeeController extends Controller
         $employee = Employee::findOrFail($id);
         return redirect()->route('employees.index');
     }
-    
-    public function showSwagger(){
-        $employee = Employee::findOrFail($id);
-        return response()->json($employee);
-    }
+
+    // public function showSwagger(){
+    //     $employee = Employee::findOrFail($id);
+    //     return response()->json($employee);
+    // }
 
 
     /**
@@ -166,7 +156,7 @@ class EmployeeController extends Controller
         ]);
 
         $employee->update($validated);
-        return response()->json($employee);
+        return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
     }
 
     /**
@@ -190,6 +180,6 @@ class EmployeeController extends Controller
     {
         $employee = Employee::findOrFail($id);
         $employee->delete();
-        return response()->json(null, 204);
+        return redirect()->route('employees.index')->with('success', 'Employee deleted successfully.');
     }
 }
