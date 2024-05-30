@@ -26,6 +26,15 @@ class EmployeeController extends Controller
         operationId: 'getEmployeesList',
         summary: 'Get all employees',
         tags: ['Employees'],
+        parameters: [
+            new OA\Parameter(
+                name: 'query',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(type: 'string'),
+                description: 'Search query to filter employees'
+            )
+        ],
         responses: [
             new OA\Response(
                 response: 200,
@@ -39,17 +48,22 @@ class EmployeeController extends Controller
         ]
     )]
     public function index(Request $request)
-    {
-        $employees = Employee::all();
+{
+    $query = $request->input('query');
 
-        if ($request->expectsJson()) {
-            return response()->json($employees);
-        }
+    $employees = Employee::when($query, function ($queryBuilder, $searchTerm) {
+        $queryBuilder->where('first_name', 'like', "%{$searchTerm}%")
+                     ->orWhere('last_name', 'like', "%{$searchTerm}%")
+                     ->orWhere('email', 'like', "%{$searchTerm}%")
+                     ->orWhere('phone_number', 'like', "%{$searchTerm}%");
+    })->get();
 
-        return view('welcome', compact('employees'));
+    if ($request->expectsJson()) {
+        return response()->json($employees);
     }
 
-
+    return view('welcome', compact('employees'));
+}
     /**
      * Store a newly created resource in storage.
      */
@@ -76,17 +90,7 @@ class EmployeeController extends Controller
             )
         ]
     )]
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'email' => 'required|email|unique:employees',
-            'phone_number' => 'required'
-        ]);
-        $employee = Employee::create($validated);
-        return redirect()->route('employees.index')->with('success', 'Employee created successfully.');
-    }
+
     /**
      * Display the specified resource.
      */
@@ -105,17 +109,6 @@ class EmployeeController extends Controller
             )
         ]
     )]
-    public function show(string $id)
-    {
-        $employee = Employee::findOrFail($id);
-        return redirect()->route('employees.index');
-    }
-
-    // public function showSwagger(){
-    //     $employee = Employee::findOrFail($id);
-    //     return response()->json($employee);
-    // }
-
 
     /**
      * Update the specified resource in storage.
@@ -146,18 +139,7 @@ class EmployeeController extends Controller
             )
         ]
     )]
-    public function update(Request $request, Employee $employee)
-    {
-        $validated = $request->validate([
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'email' => 'required|email|unique:employees,email,' . $employee->id,
-            'phone_number' => 'required'
-        ]);
 
-        $employee->update($validated);
-        return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -180,6 +162,41 @@ class EmployeeController extends Controller
     {
         $employee = Employee::findOrFail($id);
         $employee->delete();
+        dispatch(new PostDeleteTask($employee));
         return redirect()->route('employees.index')->with('success', 'Employee deleted successfully.');
+    }
+
+    public function update(Request $request, Employee $employee)
+    {
+        $validated = $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required|email|unique:employees,email,' . $employee->id,
+            'phone_number' => 'required'
+        ]);
+
+        $employee->update($validated);
+        return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
+    }
+
+    public function show($id)
+    {
+        $employee = Employee::find($id);
+        if (!$employee) {
+            return response()->json(['message' => 'Employee not found'], 404);
+        }
+        return response()->json($employee);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required|email|unique:employees',
+            'phone_number' => 'required'
+        ]);
+        $employee = Employee::create($validated);
+        return redirect()->route('employees.index')->with('success', 'Employee created successfully.');
     }
 }

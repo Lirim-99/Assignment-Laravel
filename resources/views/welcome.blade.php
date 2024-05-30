@@ -23,6 +23,14 @@
                 </div>
 
                 <main class="mt-6">
+                    <!-- Search Form -->
+                    <form action="{{ route('employees.index') }}" method="GET" class="mb-4">
+                        <div class="flex">
+                            <input type="text" name="query" placeholder="Search..." class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ request()->input('query') }}">
+                            <button type="submit" class="ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300">Search</button>
+                        </div>
+                    </form>
+
                     <!-- Create Employee Form Toggle Button -->
                     <div class="flex justify-end mb-4">
                         <button onclick="document.getElementById('create-employee-form').classList.toggle('hidden')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300">Create Employee</button>
