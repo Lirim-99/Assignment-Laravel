@@ -162,7 +162,6 @@ class EmployeeController extends Controller
     {
         $employee = Employee::findOrFail($id);
         $employee->delete();
-        dispatch(new PostDeleteTask($employee));
         return redirect()->route('employees.index')->with('success', 'Employee deleted successfully.');
     }
 
